@@ -1,17 +1,16 @@
-
 import { GoogleGenAI, GenerateContentResponse, Content, Part, Chat } from "@google/genai";
 import { PromptGenerationFormState, ChatMessage, Candidate } from '../types';
 import { GEMINI_API_MODEL_TEXT, GEMINI_API_MODEL_MULTIMODAL, GEMINI_API_MODEL_IMAGE_GENERATION } from "../constants";
 
-const API_KEY = process.env.API_KEY;
+const API_KEY = 'AIzaSyDbUjcKJPFk0LG1KfrEFjfZ2j3ld1_Wheg';
 
 let ai: GoogleGenAI | null = null;
 let activeChat: Chat | null = null;
 
-if (API_KEY) {
+try {
   ai = new GoogleGenAI({ apiKey: API_KEY });
-} else {
-  console.warn("Gemini API key not found. Please set the API_KEY environment variable.");
+} catch (error) {
+  console.error("Failed to initialize Gemini API:", error);
 }
 
 export const isGeminiApiKeyAvailable = (): boolean => {

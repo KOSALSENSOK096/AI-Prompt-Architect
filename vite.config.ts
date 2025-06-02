@@ -1,17 +1,13 @@
 import path from 'path';
-import { defineConfig, loadEnv } from 'vite';
+import { defineConfig } from 'vite';
 
-export default defineConfig(({ mode }) => {
-    const env = loadEnv(mode, '.', '');
-    return {
-      define: {
-        'process.env.API_KEY': JSON.stringify(env.API_KEY || env.GEMINI_API_KEY),
-        'process.env.GEMINI_API_KEY': JSON.stringify(env.API_KEY || env.GEMINI_API_KEY)
-      },
-      resolve: {
-        alias: {
-          '@': path.resolve(__dirname, '.'),
-        }
-      }
-    };
+export default defineConfig({
+  define: {
+    'process.env.API_KEY': JSON.stringify('AIzaSyDbUjcKJPFk0LG1KfrEFjfZ2j3ld1_Wheg'),
+  },
+  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, '.'),
+    }
+  }
 });
