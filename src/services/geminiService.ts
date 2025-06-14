@@ -1,11 +1,10 @@
 import { GoogleGenerativeAI, GenerateContentResult } from '@google/generative-ai';
-import { PromptGenerationFormState, ChatMessage, Candidate } from '../types';
+import { PromptGenerationFormState, ChatMessage } from '../types';
 import { GEMINI_API_MODEL_TEXT, GEMINI_API_MODEL_MULTIMODAL, GEMINI_API_MODEL_IMAGE_GENERATION } from "../constants";
 
 const API_KEY = import.meta.env.VITE_GOOGLE_API_KEY;
 
 let genAI: GoogleGenerativeAI | null = null;
-let activeChat: Chat | null = null;
 
 if (API_KEY) {
   genAI = new GoogleGenerativeAI(API_KEY);
@@ -40,9 +39,9 @@ const handleGeminiError = (error: any): string => {
   return "Failed to communicate with the AI service. It might be temporarily unavailable or encountered an issue.";
 };
 
-export const generatePrompt = async (input: string) => {
+export const generatePrompt = async (input: string): Promise<string> => {
   if (!genAI) {
-    throw new Error("Gemini API client is not initialized. API_KEY might be missing.");
+    throw new Error("Gemini API client is not initialized. VITE_GOOGLE_API_KEY might be missing.");
   }
   try {
     const model = genAI.getGenerativeModel({ model: GEMINI_API_MODEL_TEXT });
@@ -50,8 +49,7 @@ export const generatePrompt = async (input: string) => {
     const response = await result.response;
     return response.text();
   } catch (error) {
-    console.error('Error generating prompt:', error);
-    throw error;
+    throw new Error(handleGeminiError(error));
   }
 };
 
@@ -74,7 +72,7 @@ export const generatePromptWithGemini = async (
   userInput: PromptGenerationFormState
 ): Promise<string> => {
   if (!genAI) {
-    throw new Error("Gemini API client is not initialized. API_KEY might be missing.");
+    throw new Error("Gemini API client is not initialized. VITE_GOOGLE_API_KEY might be missing.");
   }
 
   const metaPrompt = `
@@ -126,23 +124,22 @@ export const translateTextWithGemini = async (
   targetLangFull: string  
 ): Promise<string> => {
   if (!genAI) {
-    throw new Error("Gemini API client is not initialized. API_KEY might be missing.");
+    throw new Error("Gemini API client is not initialized. VITE_GOOGLE_API_KEY might be missing.");
   }
 
   const prompt = `Translate the following text from ${sourceLangFull} to ${targetLangFull}. Output ONLY the translated text, without any additional explanations, titles, or phrases like "Here is the translation:":\n\n"${text}"`;
 
   try {
-    const response = await genAI.models.generateContent({
-      model: GEMINI_API_MODEL_TEXT,
-      contents: prompt,
-    });
+    const model = genAI.getGenerativeModel({ model: GEMINI_API_MODEL_TEXT });
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    let translatedText = response.text().trim();
     
-    let translatedText = (response.text || '').trim(); 
     if (translatedText.toLowerCase().startsWith(`here is the translation in ${targetLangFull.toLowerCase()}:`)) {
-        translatedText = (translatedText.substring(`here is the translation in ${targetLangFull.toLowerCase()}:`.length) || '').trim();
+      translatedText = translatedText.substring(`here is the translation in ${targetLangFull.toLowerCase()}:`.length).trim();
     }
     if (translatedText.toLowerCase().startsWith(`${targetLangFull.toLowerCase()}:`)) {
-        translatedText = (translatedText.substring(`${targetLangFull.toLowerCase()}:`.length) || '').trim();
+      translatedText = translatedText.substring(`${targetLangFull.toLowerCase()}:`.length).trim();
     }
     if (translatedText.startsWith('"') && translatedText.endsWith('"')) {
       translatedText = translatedText.substring(1, translatedText.length - 1);
@@ -293,53 +290,35 @@ export const generateImageEnhancementPromptFromImageAndText = async (
   userInstructions: string
 ): Promise<string> => {
   if (!genAI) {
-    throw new Error("Gemini API client is not initialized. API_KEY might be missing.");
+    throw new Error("Gemini API client is not initialized. VITE_GOOGLE_API_KEY might be missing.");
   }
 
-  const imagePart = {
-    inlineData: {
-      mimeType: mimeType,
-      data: base64Image,
-    },
-  };
-
-  const textPart = {
-    text: `User instructions for enhancement: "${userInstructions || 'Re-create this image clearly and in high quality.'}"`,
-  };
+  const model = genAI.getGenerativeModel({ model: GEMINI_API_MODEL_MULTIMODAL });
   
-  const systemInstruction = `You are an AI expert at interpreting potentially vague images and user requests to generate clear, detailed textual prompts for an advanced image generation model (like Imagen 3).
-The user will provide a base image (which might be blurry or low quality) and textual instructions (e.g., 'make the face clearer', 'enhance details', 'recreate this in high quality').
-Your task is to:
-1. Analyze the visual content of the base image.
-2. Understand the user's enhancement request from their text.
-3. Synthesize this information into a single, rich, descriptive textual prompt. This prompt will be used by another AI to generate a *new* image that is a clear, high-quality, and visually faithful re-imagination of the subject matter in the original vague image, according to the user's instructions.
-4. If a face is present or implied in the vague image and the user requests focus on it, ensure the generated prompt describes a clear, well-defined face with appropriate details.
-5. The prompt should be suitable for creating a photographic or artistically clear rendition.
-Output *ONLY* this textual prompt. Do not include any other commentary, conversational text, or markdown formatting around the prompt itself.`;
-
-
   try {
-    const response: GenerateContentResponse = await genAI.models.generateContent({
-      model: GEMINI_API_MODEL_MULTIMODAL, // Use multimodal for image input
-      contents: { parts: [imagePart, textPart] },
-      config: {
-        systemInstruction: systemInstruction,
+    const result = await model.generateContent([
+      {
+        inlineData: {
+          mimeType,
+          data: base64Image
+        }
+      },
+      {
+        text: `User instructions for enhancement: "${userInstructions || 'Re-create this image clearly and in high quality.'}"
+        
+You are an AI expert at interpreting potentially vague images and user requests to generate clear, detailed textual prompts for an advanced image generation model.
+Analyze the visual content of the base image and the user's enhancement request.
+Synthesize this information into a single, rich, descriptive textual prompt.
+If a face is present or implied and the user requests focus on it, ensure the generated prompt describes a clear, well-defined face with appropriate details.
+The prompt should be suitable for creating a photographic or artistically clear rendition.
+Output ONLY this textual prompt. Do not include any other commentary or formatting.`
       }
-    });
+    ]);
     
-    let generatedPrompt = (response.text || '').trim();
-    // Clean potential markdown fences if any (though system instruction tries to prevent it)
-    const fenceRegex = /^```(\w*)?\s*\n?(.*?)\n?\s*```$/s;
-    const match = generatedPrompt.match(fenceRegex);
-    if (match && match[2]) {
-      generatedPrompt = (match[2] || '').trim();
-    }
-    if (!generatedPrompt) {
-        throw new Error("AI failed to generate an enhancement prompt. The response was empty.");
-    }
-    return generatedPrompt;
+    const response = await result.response;
+    return response.text().trim();
   } catch (error) {
-    throw new Error(`Failed to generate image enhancement prompt: ${handleGeminiError(error)}`);
+    throw new Error(handleGeminiError(error));
   }
 };
 

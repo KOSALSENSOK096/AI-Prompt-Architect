@@ -1,5 +1,3 @@
-
-
 export interface User {
   id: string;
   username: string;
@@ -23,8 +21,8 @@ export interface PromptGenerationFormState {
 }
 
 export enum Language {
-  EN = 'EN',
-  KM = 'KM',
+  EN = 'en',
+  KH = 'kh'
 }
 
 export interface NavLink {
@@ -36,7 +34,7 @@ export interface NavLink {
 
 export interface AlertMessage {
   id: number;
-  type: 'success' | 'error' | 'info';
+  type: 'success' | 'error' | 'info' | 'warning';
   message: string;
 }
 
@@ -109,24 +107,18 @@ export interface Candidate { // This is a local type, ensure it uses local Groun
 
 export interface ChatMessage {
   id: string;
-  sender: 'user' | 'ai';
   text: string;
-  image?: string; // base64 encoded image
+  sender: 'user' | 'ai';
+  timestamp: number;
+  image?: string;
   imageMimeType?: string;
-  timestamp: Date;
-  isLoading?: boolean; // For AI responses that are streaming or loading
-  groundingMetadata?: GroundingMetadata; // Will use the updated GroundingMetadata
 }
 
-export type TranslationSupportedLanguage = 'English' | 'Khmer' | 'French' | 'Japanese' | 'Chinese' | 'Spanish';
+export type TranslationSupportedLanguage = 'English' | 'Khmer';
 
 export const LANGUAGE_OPTIONS: Record<TranslationSupportedLanguage, string> = {
-  English: 'en',
-  Khmer: 'km',
-  French: 'fr',
-  Japanese: 'ja',
-  Chinese: 'zh',
-  Spanish: 'es',
+  'English': 'en',
+  'Khmer': 'km'
 };
 
 // --- UI Designer Types ---
