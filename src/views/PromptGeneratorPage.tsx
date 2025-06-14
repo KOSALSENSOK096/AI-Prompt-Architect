@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { PROMPT_QUESTIONS } from '../constants';
 import { PromptGenerationFormState, Language, AlertMessage } from '../types';
@@ -27,7 +26,7 @@ const PromptGeneratorPage: React.FC = () => {
       setAlert({
         id: Date.now(),
         type: 'error',
-        message: 'Gemini API key is not configured. The prompt generation feature will not work. Please ensure the API_KEY environment variable is set.'
+        message: 'Gemini API key is not configured. The prompt generation feature will not work. Please ensure the VITE_GOOGLE_API_KEY environment variable is set.'
       });
       setApiKeyMissingAlertShown(true);
     }

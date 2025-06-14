@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { APP_NAME, GEMINI_API_MODEL_TEXT } from '../constants';
 
@@ -33,7 +32,7 @@ const AboutPage: React.FC = () => {
             This application demonstrates a concept for a membership-based platform. Currently, user registration and login (using username and phone number) are simulated using your browser's local storage for persistence on your device. No data is sent to a central server for authentication.
           </p>
           <p className="text-slate-600 dark:text-slate-400 mt-2">
-            The core prompt generation capability is powered by the <strong className="text-slate-700 dark:text-slate-200">Google Gemini API</strong> (specifically, the `{GEMINI_API_MODEL_TEXT || 'gemini-2.5-flash-preview-04-17'}` model). An API key for the Gemini API (set via the `API_KEY` environment variable) is required for this feature to function.
+            The core prompt generation capability is powered by the <strong className="text-slate-700 dark:text-slate-200">Google Gemini API</strong> (specifically, the `{GEMINI_API_MODEL_TEXT || 'gemini-2.5-flash-preview-04-17'}` model). An API key for the Gemini API (set via the `VITE_GOOGLE_API_KEY` environment variable) is required for this feature to function.
           </p>
         </div>
 

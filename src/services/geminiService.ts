@@ -2,7 +2,7 @@ import { GoogleGenerativeAI, GenerateContentResult } from '@google/generative-ai
 import { PromptGenerationFormState, ChatMessage, Candidate } from '../types';
 import { GEMINI_API_MODEL_TEXT, GEMINI_API_MODEL_MULTIMODAL, GEMINI_API_MODEL_IMAGE_GENERATION } from "../constants";
 
-const API_KEY = process.env.VITE_GOOGLE_API_KEY;
+const API_KEY = import.meta.env.VITE_GOOGLE_API_KEY;
 
 let genAI: GoogleGenerativeAI | null = null;
 let activeChat: Chat | null = null;

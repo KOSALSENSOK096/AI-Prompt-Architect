@@ -282,7 +282,9 @@ const ImageEnhancerPage: React.FC = () => {
       {apiKeyMissingAlertShown && !isGeminiApiKeyAvailable() && (
          <div className="mb-6 bg-red-100 dark:bg-red-900 dark:bg-opacity-40 border-l-4 border-red-600 dark:border-red-500 p-4 rounded-md shadow-lg">
             <div className="flex"> <div className="flex-shrink-0"><XCircleIcon className="h-6 w-6 text-red-600 dark:text-red-400" /></div>
-              <div className="ml-3"> <p className="text-sm font-semibold text-red-900 dark:text-red-200">Critical Error: Gemini API Key Missing</p> <p className="text-xs text-red-800 dark:text-red-300 mt-1">Image Enhancer is disabled. Please ensure the API_KEY is correctly set up.</p> 
+              <div className="ml-3"> 
+                <p className="text-sm font-semibold text-red-900 dark:text-red-200">Critical Error: Gemini API Key Missing</p> 
+                <p className="text-xs text-red-800 dark:text-red-300 mt-1">Image Enhancer is disabled. Please ensure the VITE_GOOGLE_API_KEY is correctly set up.</p> 
               </div>
             </div>
           </div>

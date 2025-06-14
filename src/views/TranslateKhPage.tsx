@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Language, AlertMessage, TranslationSupportedLanguage, LANGUAGE_OPTIONS } from '../types';
 import { translateTextWithGemini, isGeminiApiKeyAvailable } from '../services/geminiService';
@@ -22,7 +21,7 @@ const TranslateKhPage: React.FC = () => {
       setAlert({
         id: Date.now(),
         type: 'error',
-        message: 'Gemini API key is not configured. Translation feature will not work. Please ensure the API_KEY environment variable is set.'
+        message: 'Gemini API key is not configured. Translation feature will not work. Please ensure the VITE_GOOGLE_API_KEY environment variable is set.'
       });
       setApiKeyMissingAlertShown(true);
     }
