@@ -1,20 +1,17 @@
-import { GoogleGenerativeAI } from '@google/generative-ai';
-import { GoogleGenAI, GenerateContentResponse, Content, Part, Chat } from "@google/genai";
+import { GoogleGenerativeAI, GenerateContentResult } from '@google/generative-ai';
 import { PromptGenerationFormState, ChatMessage, Candidate } from '../types';
 import { GEMINI_API_MODEL_TEXT, GEMINI_API_MODEL_MULTIMODAL, GEMINI_API_MODEL_IMAGE_GENERATION } from "../constants";
 
-const API_KEY = process.env.API_KEY;
+const API_KEY = process.env.VITE_GOOGLE_API_KEY;
 
-let ai: GoogleGenAI | null = null;
+let genAI: GoogleGenerativeAI | null = null;
 let activeChat: Chat | null = null;
 
 if (API_KEY) {
-  ai = new GoogleGenAI({ apiKey: API_KEY });
+  genAI = new GoogleGenerativeAI(API_KEY);
 } else {
-  console.warn("Gemini API key not found. Please set the API_KEY environment variable.");
+  console.warn("Gemini API key not found. Please set the VITE_GOOGLE_API_KEY environment variable.");
 }
-
-const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GOOGLE_API_KEY || '');
 
 export const isGeminiApiKeyAvailable = (): boolean => {
   return !!API_KEY;
@@ -44,8 +41,11 @@ const handleGeminiError = (error: any): string => {
 };
 
 export const generatePrompt = async (input: string) => {
+  if (!genAI) {
+    throw new Error("Gemini API client is not initialized. API_KEY might be missing.");
+  }
   try {
-    const model = genAI.getGenerativeModel({ model: 'gemini-pro' });
+    const model = genAI.getGenerativeModel({ model: GEMINI_API_MODEL_TEXT });
     const result = await model.generateContent(input);
     const response = await result.response;
     return response.text();
@@ -56,8 +56,11 @@ export const generatePrompt = async (input: string) => {
 };
 
 export const generateImage = async (prompt: string) => {
+  if (!genAI) {
+    throw new Error("Gemini API client is not initialized. API_KEY might be missing.");
+  }
   try {
-    const model = genAI.getGenerativeModel({ model: 'gemini-pro-vision' });
+    const model = genAI.getGenerativeModel({ model: GEMINI_API_MODEL_MULTIMODAL });
     const result = await model.generateContent(prompt);
     const response = await result.response;
     return response.text();
@@ -70,7 +73,7 @@ export const generateImage = async (prompt: string) => {
 export const generatePromptWithGemini = async (
   userInput: PromptGenerationFormState
 ): Promise<string> => {
-  if (!ai) {
+  if (!genAI) {
     throw new Error("Gemini API client is not initialized. API_KEY might be missing.");
   }
 
@@ -100,16 +103,15 @@ If the user specified a target AI model, you can subtly tailor the prompt struct
 `;
 
   try {
-    const response: GenerateContentResponse = await ai.models.generateContent({
-      model: GEMINI_API_MODEL_TEXT,
-      contents: metaPrompt,
-    });
+    const model = genAI.getGenerativeModel({ model: GEMINI_API_MODEL_TEXT });
+    const result = await model.generateContent(metaPrompt);
+    const response = await result.response;
+    let text = response.text().trim();
     
-    let text = (response.text || '').trim(); 
     const fenceRegex = /^```(\w*)?\s*\n?(.*?)\n?\s*```$/s;
     const match = text.match(fenceRegex);
     if (match && match[2]) {
-      text = (match[2] || '').trim(); 
+      text = match[2].trim();
     }
     return text;
 
@@ -123,14 +125,14 @@ export const translateTextWithGemini = async (
   sourceLangFull: string, 
   targetLangFull: string  
 ): Promise<string> => {
-  if (!ai) {
+  if (!genAI) {
     throw new Error("Gemini API client is not initialized. API_KEY might be missing.");
   }
 
   const prompt = `Translate the following text from ${sourceLangFull} to ${targetLangFull}. Output ONLY the translated text, without any additional explanations, titles, or phrases like "Here is the translation:":\n\n"${text}"`;
 
   try {
-    const response: GenerateContentResponse = await ai.models.generateContent({
+    const response = await genAI.models.generateContent({
       model: GEMINI_API_MODEL_TEXT,
       contents: prompt,
     });
@@ -153,13 +155,13 @@ export const translateTextWithGemini = async (
 };
 
 export const startNewChatSession = (history?: Content[]): void => {
-  if (!ai) {
+  if (!genAI) {
     console.error("Gemini API client not initialized for chat.");
     activeChat = null;
     return;
   }
   try {
-    activeChat = ai.chats.create({
+    activeChat = genAI.chats.create({
       model: GEMINI_API_MODEL_MULTIMODAL,
       config: {
         systemInstruction: `You are AI Khmer, a friendly and highly capable AI assistant. 
@@ -197,7 +199,7 @@ export const startNewChatSession = (history?: Content[]): void => {
 export const sendChatMessageToGemini = async ( // Note: This function is not currently used for streaming chat in PremiumPage
   userMessage: ChatMessage
 ): Promise<GenerateContentResponse> => {
-  if (!ai) {
+  if (!genAI) {
     throw new Error("Gemini API client is not initialized. API_KEY might be missing.");
   }
   if (!activeChat) {
@@ -232,7 +234,7 @@ export const sendChatMessageToGemini = async ( // Note: This function is not cur
 export const sendChatMessageStreamToGemini = async (
   userMessage: ChatMessage
 ): Promise<AsyncIterable<GenerateContentResponse>> => {
-   if (!ai) {
+   if (!genAI) {
     throw new Error("Gemini API client is not initialized. API_KEY might be missing.");
   }
   if (!activeChat) {
@@ -262,7 +264,7 @@ export const sendChatMessageStreamToGemini = async (
 };
 
 export const getWordExplanationFromGemini = async (word: string, sourceLanguage: 'English' | 'Khmer'): Promise<string> => {
-  if (!ai) {
+  if (!genAI) {
     throw new Error("Gemini API client is not initialized. API_KEY might be missing.");
   }
 
@@ -274,7 +276,7 @@ export const getWordExplanationFromGemini = async (word: string, sourceLanguage:
   }
 
   try {
-    const response: GenerateContentResponse = await ai.models.generateContent({
+    const response: GenerateContentResponse = await genAI.models.generateContent({
       model: GEMINI_API_MODEL_TEXT,
       contents: prompt,
     });
@@ -290,7 +292,7 @@ export const generateImageEnhancementPromptFromImageAndText = async (
   mimeType: string,
   userInstructions: string
 ): Promise<string> => {
-  if (!ai) {
+  if (!genAI) {
     throw new Error("Gemini API client is not initialized. API_KEY might be missing.");
   }
 
@@ -317,7 +319,7 @@ Output *ONLY* this textual prompt. Do not include any other commentary, conversa
 
 
   try {
-    const response: GenerateContentResponse = await ai.models.generateContent({
+    const response: GenerateContentResponse = await genAI.models.generateContent({
       model: GEMINI_API_MODEL_MULTIMODAL, // Use multimodal for image input
       contents: { parts: [imagePart, textPart] },
       config: {
@@ -346,7 +348,7 @@ export const generatePatchSpecificEnhancementPrompt = async (
   patchMimeType: string,
   mainUserInstructions: string
 ): Promise<string> => {
-  if (!ai) {
+  if (!genAI) {
     throw new Error("Gemini API client is not initialized. API_KEY might be missing.");
   }
 
@@ -372,7 +374,7 @@ Example for a blurry eye patch with main instructions "photorealistic portrait, 
 Example for a blurry tree bark patch with main instructions "fantasy landscape": "Highly detailed, textured tree bark, elven forest, mystical lighting, sharp focus."`;
 
   try {
-    const response: GenerateContentResponse = await ai.models.generateContent({
+    const response: GenerateContentResponse = await genAI.models.generateContent({
       model: GEMINI_API_MODEL_MULTIMODAL,
       contents: { parts: [imagePart, textPart] },
       config: {
@@ -396,14 +398,14 @@ Example for a blurry tree bark patch with main instructions "fantasy landscape":
 };
 
 
-// This function can be used by ImageEnhancerPage directly if needed, or ImageEnhancerPage can call ai.models.generateImages itself
+// This function can be used by ImageEnhancerPage directly if needed, or ImageEnhancerPage can call genAI.models.generateImages itself
 // For consistency, if we make an explicit export for generateImages, it would look like this:
 export const generateImageWithImagen = async (prompt: string) => {
-  if (!ai) {
+  if (!genAI) {
     throw new Error("Gemini API client is not initialized. API_KEY might be missing.");
   }
   try {
-    const response = await ai.models.generateImages({
+    const response = await genAI.models.generateImages({
         model: GEMINI_API_MODEL_IMAGE_GENERATION,
         prompt: prompt,
         config: { numberOfImages: 1, outputMimeType: 'image/png' }, // Assuming PNG output
@@ -421,4 +423,4 @@ export const generateImageWithImagen = async (prompt: string) => {
 
 // Make sure this export exists if it's used elsewhere, or ImageEnhancerPage uses GEMINI_API_MODEL_IMAGE_GENERATION directly
 export { GEMINI_API_MODEL_IMAGE_GENERATION }; 
-export { ai as geminiAiInstance }; // Exporting the ai instance for direct use if needed.
+export { genAI as geminiAiInstance }; // Exporting the ai instance for direct use if needed.

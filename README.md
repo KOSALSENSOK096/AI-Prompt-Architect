@@ -1,13 +1,38 @@
-# AI Prompt Architect
+# AI-Prompt-Architect
 
-A powerful tool for creating, managing, and optimizing AI prompts using Google's Gemini API.
+A powerful tool for crafting and managing AI prompts, powered by Google's Gemini AI.
+
+## Setup
+
+1. Clone the repository
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+3. Create a `.env` file in the root directory with your Gemini API key:
+   ```
+   VITE_GOOGLE_API_KEY=your_api_key_here
+   ```
+4. Start the development server:
+   ```bash
+   npm run dev
+   ```
 
 ## Features
 
-- AI Prompt Generation
-- UI Design Assistance
-- Khmer Translation
-- Premium Features
+- AI-powered prompt generation
+- Multi-modal support (text and images)
+- Real-time chat interface
+- Prompt history management
+- And more!
+
+## Technologies Used
+
+- React
+- TypeScript
+- Vite
+- Google Generative AI
+- Tailwind CSS
 
 ## Getting Started
 
@@ -57,4 +82,3 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 ## License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
-# AI-Prompt-Architect
