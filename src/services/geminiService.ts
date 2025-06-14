@@ -14,7 +14,7 @@ if (API_KEY) {
   console.warn("Gemini API key not found. Please set the API_KEY environment variable.");
 }
 
-const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY || '');
+const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GOOGLE_API_KEY || '');
 
 export const isGeminiApiKeyAvailable = (): boolean => {
   return !!API_KEY;
