@@ -9,6 +9,8 @@ import CodeBlockDisplay from '../components/CodeBlockDisplay';
 import TechnicalTerm from '../components/TechnicalTerm'; 
 import { TECHNICAL_TERMS } from '../constants'; 
 import { Content, Part, GenerateContentResponse } from '@google/genai';
+import { SPEECH_RECOGNITION_CONFIG } from '../config/api';
+import type { CustomSpeechRecognition } from '../types/speech-recognition';
 // @ts-ignore - html2pdf.js is imported via importmap and might not have types
 import html2pdf from 'html2pdf.js';
 import ClickableWord from '../components/ClickableWord'; 
@@ -1255,7 +1257,7 @@ const PremiumPage: React.FC = () => {
             <PhotoIcon className="w-6 h-6"/>
             <input type="file" id="imageUpload" ref={fileInputRef} onChange={handleImageChange} accept="image/png, image/jpeg, image/gif, image/webp" className="hidden" disabled={!!editingMessageId || isLoading}/>
           </label>
-          {(window.SpeechRecognition || window.webkitSpeechRecognition) && (
+          {checkSpeechRecognition() && (
             <button onClick={toggleVoiceInput} title={isListening ? "Stop listening" : "Speak (Khmer or English)"} className={`p-2 text-slate-500 dark:text-slate-400 hover:text-primary dark:hover:text-primary-light rounded-full hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors ${isListening ? 'bg-red-100 dark:bg-red-700/50' : ''} ${editingMessageId ? 'opacity-50 cursor-not-allowed' : ''}`} disabled={!!editingMessageId || isLoading}>
               <MicrophoneIcon className="w-6 h-6" isListening={isListening}/>
             </button>

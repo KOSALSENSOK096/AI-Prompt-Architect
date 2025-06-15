@@ -48,7 +48,7 @@ npm install
 
 3. Create a `.env` file in the root directory and add your Gemini API key:
 ```env
-VITE_GOOGLE_API_KEY=your_api_key_here
+VITE_GOOGLE_API_KEY=AIzaSyAldNoXtHy331OHk88wcnTZ9JxQvh1xy6M
 ```
 
 4. Start the development server:
@@ -105,7 +105,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Contact
 
-Kosal Sensok - [@KOSALSENSOK096](https://github.com/KOSALSENSOK096)
+Kosal Sensok - @KOSALSENSOK096
 
-Project Link: [https://github.com/KOSALSENSOK096/AI-Prompt-Architect](https://github.com/KOSALSENSOK096/AI-Prompt-Architect) 
+Project Link: https://github.com/KOSALSENSOK096/AI-Prompt-Architect 
 "# AI-Prompt-Architect" 
