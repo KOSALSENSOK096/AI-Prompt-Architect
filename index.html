@@ -1,0 +1,111 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Prompt Architect</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Kantumruy+Pro:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&display=swap" rel="stylesheet">
+  <script>
+    // Set theme on initial load
+    (function() {
+      if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+    })();
+
+    tailwind.config = {
+      darkMode: 'class', // Enable class-based dark mode
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'Kantumruy Pro', 'sans-serif'], // Inter primary, Kantumruy Pro for Khmer
+            kantumruy: ['Kantumruy Pro', 'sans-serif'], // Explicit Kantumruy Pro only
+          },
+          colors: {
+            primary: {
+              DEFAULT: '#0D9488', // Teal 600
+              light: '#2DD4BF',   // Teal 400
+              dark: '#0F766E',    // Teal 700
+            },
+            secondary: {
+              DEFAULT: '#4F46E5', // Indigo 600
+              light: '#818CF8',   // Indigo 400
+              dark: '#3730A3',    // Indigo 700
+            }
+          },
+          animation: {
+            fadeInUp: 'fadeInUp 0.3s ease-out',
+            pulseDots: 'pulseDots 1.4s infinite ease-in-out both',
+          },
+          keyframes: {
+            fadeInUp: {
+              '0%': { opacity: '0', transform: 'translateY(10px)' },
+              '100%': { opacity: '1', transform: 'translateY(0)' },
+            },
+            pulseDots: {
+              '0%, 80%, 100%': { transform: 'scale(0)', opacity: '0' },
+              '40%': { transform: 'scale(1.0)', opacity: '1' },
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      font-family: 'Inter', 'Kantumruy Pro', sans-serif; /* Applied globally */
+    }
+    .font-kantumruy { /* Utility class for explicit Kantumruy Pro styling */
+      font-family: 'Kantumruy Pro', sans-serif;
+    }
+    /* Ensure pre tags also respect the Kantumruy Pro for Khmer characters */
+    pre, code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", 'Kantumruy Pro', monospace;
+    }
+     /* Add animation classes directly if Tailwind JIT doesn't pick them up from config alone for dynamic class names */
+    .animate-fadeInUp {
+      animation: fadeInUp 0.3s ease-out;
+    }
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    .dot {
+      animation: pulseDots 1.4s infinite ease-in-out both;
+    }
+    .dot-1 { animation-delay: -0.32s; }
+    .dot-2 { animation-delay: -0.16s; }
+    .dot-3 { animation-delay: 0s; }
+
+  </style>
+<script type="importmap">
+{
+  "imports": {
+    "react/": "https://esm.sh/react@^19.1.0/",
+    "react": "https://esm.sh/react@^19.1.0",
+    "@google/genai": "https://esm.sh/@google/genai@^1.3.0",
+    "react-router-dom": "https://esm.sh/react-router-dom@^7.6.1",
+    "react-dom/": "https://esm.sh/react-dom@^19.1.0/",
+    "html2pdf.js": "https://esm.sh/html2pdf.js@^0.10.3"
+  }
+}
+</script>
+<link rel="stylesheet" href="/index.css">
+</head>
+<body class="bg-slate-50 text-slate-800 dark:bg-slate-900 dark:text-slate-200 transition-colors duration-300">
+  <div id="root"></div>
+  <script type="module" src="/index.tsx"></script>
+</body>
+</html>
